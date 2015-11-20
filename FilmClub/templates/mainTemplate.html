@@ -1,0 +1,317 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" /> -->
+    <!-- Site Properties -->
+    <title>{{ title }} – Film Club</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static "dist/semantic.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <!-- <link rel="stylesheet" type="text/css" href="dist/components/grid.css"> -->
+
+    <script src="{% static "js/jquery-2.1.3.min.js" %}"></script>
+    <script src="{% static "dist/semantic.js" %}"></script>
+</head>
+<body>
+<!-- header start -->
+<div class="ui fixed menu">
+    {% if page == 'timeline' %}
+        <a class="active item" href="/">
+    {% else %}
+        <a class="item" href="/">
+    {% endif %}
+    <i class="home icon"></i> Timeline
+    </a>
+    {% if page == 'profile' %}
+        < class="active item" href="/user/{{ logged_in.id }}/">
+    {% else %}
+        <a class="item" href="/user/{{ logged_in.id }}/">
+    {% endif %}
+    <i class="user icon"></i> {{ logged_in.display_name }}
+    </a>
+    {#    <a class="item" href="/settings/">#}
+    {#        <i class="setting icon"></i> Settings#}
+    {#    </a>#}
+    <a class="item" id="notificationsItem">
+        <i class="announcement sign icon"></i>Notifications
+    </a>
+    <div class="ui very wide popup" id="notificationsPopup">
+        <div class="ui divided list">
+            {% for n in notifications %}
+                <div class="item">
+                    <img class="ui avatar image" src="{{ n.user.avatar.url }}">
+                    <div class="content">
+                        <a style="display: inline !important;" href="/user/{{ n.user.id }}/" class="header">{{ n.user.display_name }}</a>
+                        <span class="date">{{ n.date }}</span>
+                        {% if n.type == "like" %}
+                            <a href="/post/{{ n.post_id }}/"><div class="description">Liked your post.</div></a>
+                        {% elif n.type == "comment_post" %}
+                            <a href="/post/{{ n.post_id }}/"><div class="description">Commented on your post.</div></a>
+                        {% elif n.type == "comment_comment" %}
+                            <a href="/post/{{ n.post_id }}/"><div class="description">Commented on a post you've commented before.</div></a>
+                        {% elif n.type == "follow" %}
+                            <a href="/post/{{ n.post_id }}/"><div class="description">Started following you.</div></a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="item">
+                    Nothing to show here. Move along.
+                </div>
+            {% endfor %}
+            <div class="item">
+                <a href="/notifications/">View all notifications</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="right menu">
+        <div class="item">
+            <a href="/"><img class="ui image" src="{% static "img/layout/logo.png" %}" height="18"></a>
+        </div>
+        <div class="item">
+            <div class="ui search">
+                <form action="/search/" method="get" id="searchForm">
+                    <div class="ui transparent icon input">
+                        <input class="prompt" type="text" placeholder="Search..." name="query">
+              <span id="searchIconSpan">
+                <i class="search link icon" id="searchIcon"></i>
+              </span>
+                    </div>
+                </form>
+                <div class="results" style="left: -11px;" id="searchResults" style="z-index: 999;"></div>
+            </div>
+        </div>
+        <a class="item" href="/logout/">
+            <i class="sign out icon"></i> Logout
+        </a>
+    </div>
+</div>
+<!-- header end -->
+
+<!-- page grid -->
+<div class="ui page grid" style="padding-right: 10px; padding-left: 10px;">
+    <div class="row"></div>
+    <div class="row">
+        <div class="three wide computer only column">
+            {% block left %}
+            {% endblock %}
+        </div>
+
+        <!-- main column -->
+        <div class="six wide computer eleven wide tablet sixteen wide mobile column">
+            {% block main %}
+            {% endblock %}
+        </div>
+        <!-- main column end -->
+
+        <!-- suggestions column -->
+        <div class="four wide computer five wide tablet only column">
+
+            <!-- suggested movies -->
+            <div class="ui segment">
+                <div class="ui header">Suggested Movies</div>
+                <div class="ui divided items">
+                    {% for movie in movies %}
+                        <div class="item">
+                            <a class="ui inline link" href="/movie/{{ movie.id }}">
+                                <img class="ui tiny left floated image" src="{{ movie.poster.url }}" alt="{{ movie.name }}" style="margin-bottom:6%;">
+                            </a>
+                            <div class="content">
+                                <a class="ui medium header" href="/movie/{{ movie.id }}">{{ movie.name }}</a>
+                                <div class="meta">
+                                    <span class="genre">{{ movie.genre }}</span>
+                                </div>
+                                <div class="description">
+                                    {{ movie.excerpt }}
+                                </div>
+                                <div class="extra">
+                                    Average rating: {{ movie.rating }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- suggested movies end -->
+
+            <!-- suggested users -->
+            <div class="ui segment">
+                <div class="ui header">Users to Follow</div>
+                <div class="ui divided list">
+                    {% for user in users %}
+                        <div class="item">
+                            <a href="/user/{{ user.id }}">
+                                <img class="ui tiny avatar left floated image" src="{{ user.avatar.url }}">
+                            </a>
+                            <a class="ui medium header" href="/user/{{ user.id }}">{{ user.display_name }}</a>
+                            <div class="content" id="follow_button_{{ user.id }}">
+                                <div class="ui tiny labeled icon button follow" onclick="follow({{ user.id }})">
+                                    <i class="add user icon"></i>
+                                    Follow
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- suggested users end -->
+        </div>
+        <!-- suggestions column end -->
+
+        <!-- chat column -->
+        {#        <div class="three wide computer only fixed column" style="z-index: 1; position: fixed; right: -1%;">#}
+        {#            <!-- <div class="ui sticky fixed"> -->#}
+        {#            <div class="ui segment">#}
+        {#                <div class="segment" style="height:389px; overflow-y:scroll;">#}
+        {#                    <div class="ui divided list">#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/elliot.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Justen Kitsune</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/joe.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Joe Henderson</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/stevie.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Stevie Works</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/steve.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Steve Careers</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/elliot.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Elliot Occupations</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/matt.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Matt Donovan</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/jenny.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Jenny Lewis</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/joe.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Joe Henderson</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/steve.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Justen Kitsune</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/joe.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Joe Henderson</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/stevie.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Stevie Works</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/steve.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Steve Careers</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/elliot.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Elliot Occupations</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/matt.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Matt Donovan</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui circle thin icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/jenny.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Jenny Lewis</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {##}
+        {#                        <div class="item chat">#}
+        {#                            <i class="right floated compact ui green circle icon"></i>#}
+        {#                            <img class="ui avatar image" src="{% static "img/avatar/joe.jpg" %}">#}
+        {#                            <div class="content">#}
+        {#                                <div class="header">Joe Henderson</div>#}
+        {#                            </div>#}
+        {#                        </div>#}
+        {#                    </div>#}
+        {#                </div>#}
+        {#            </div>#}
+        {#            <div class="ui segment" id="chatSegment" style="display:none; padding-top:0;">#}
+        {#                <i id="closeChat" class="right floated compact ui close icon link icon"></i>#}
+        {#                <div class="small header" id="chatHeader"></div>#}
+        {#            </div>#}
+        {#        </div>#}
+        <!-- chat column end -->
+    </div>
+</div>
+<!-- page grid end -->
+<script src="{% static "js/scripts.js" %}"></script>
+<script>
+    {% block scripts %}
+    {% endblock %}
+</script>
+</body>

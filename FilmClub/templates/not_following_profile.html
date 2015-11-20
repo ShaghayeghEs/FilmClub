@@ -1,0 +1,10 @@
+{% extends 'profile.html' %}
+
+{% block button %}
+    <div id="follow_button_profile_{{ user.id }}">
+        <div class="ui labeled icon button" style="width: 62%;" onclick="follow_profile({{ user.id }})">
+            <i class="add user icon"></i>
+            Follow
+        </div>
+    </div>
+{% endblock %}

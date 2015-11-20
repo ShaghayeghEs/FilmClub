@@ -1,0 +1,113 @@
+{% extends "formLayout.html" %}
+{% load staticfiles %}
+
+{% block body %}
+    <!-- grid start -->
+    <div class="stackable ui page grid">
+        <div class="row"></div>
+        <!-- <div class="row"> -->
+
+        <!-- sign in form -->
+        <div class="seven wide column vertically padded">
+            <!-- <div class="row"> -->
+            <div class="ui message vertically padded">
+                <div class="header">
+                    Film Club
+                </div>
+                <ul class="list">
+                    <li>The first rule of Film Club is: You do talk about Film Club.</li>
+                    <li>The second rule of Film Club is: You do talk about Film Club.</li>
+                </ul>
+            </div>
+
+            {% if error %}
+            <div class="ui negative message vertically padded">
+                <div class="header">
+                    Sign-in unsuccessful
+                </div>
+                The username/password you provided is not registered.
+            </div>
+            {% endif %}
+
+            {% if sign_up %}
+            <div class="ui positive message vertically padded">
+                <div class="header">
+                    Sign-up complete
+                </div>
+                Please check your email. We've sent you an activation email.
+            </div>
+            {% endif %}
+
+            {% if forgot %}
+            <div class="ui positive message">
+                <div class="header">
+                    Success
+                </div>
+                A new password was sent to your email. Please follow the instructions sent to you.
+            </div>
+            {% endif %}
+
+            <!-- login form -->
+            <form class="ui form segment" action="/login/" method="post" id="loginForm">
+                {% csrf_token %}
+                <div class="left icon field">
+                    <label>Username</label>
+                    <div class="ui left icon input">
+                        <input placeholder="Username" type="text" name="username">
+                        <i class="ui user icon"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <div class="ui left icon input">
+                        <input placeholder="Password" type="password" name="password">
+                        <i class="ui lock icon"></i>
+                    </div>
+                </div>
+                <div class="ui blue submit button">Login</div>
+                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                <div class="ui error message"></div>
+            </form>
+            <!-- login form end -->
+
+            <div class="ui horizontal divider">Or</div>
+            <div class="center aligned column"> <!-- edit: removed centered row -->
+                <a class="ui link" href="/register/">
+                    <div class="large green ui labeled icon button">
+                        <i class="signup icon"></i>
+                        Sign Up
+                    </div>
+                </a>
+            </div>
+        </div> <!-- six wide column sign in form -->
+        <div class="one wide column"></div>
+        <div class="seven wide column">
+            <img class="ui centered image" src="{% static "img/layout/film_club.png" %}" />
+        </div>
+        <!-- </div> -->
+        <!-- row end -->
+    </div>
+    <!-- grid end -->
+
+    <!-- Forgot password modal -->
+    <div class="ui small right aligned modal" id="forgotPasswordModal">
+        <i class="close icon"></i>
+        <div class="ui form segment" id="forgotForm">
+            <div class="ui negative message">
+                <div class="header">
+                    Error
+                </div>
+                Email you provided is not registered.
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <div class="ui left icon input">
+                    <input placeholder="Email" type="email" name="email">
+                    <i class="mail icon"></i>
+                </div>
+            </div>
+            <div class="ui blue submit button">Resend Password</div>
+        </div>
+    </div>
+    <!-- Forgot password modal end -->
+{% endblock %}

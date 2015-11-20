@@ -1,0 +1,98 @@
+{% extends 'movie_template.html' %}
+{% load staticfiles %}
+
+{% block main %}
+    <!-- main column -->
+    <div class="six wide column">
+        <div class="ui segment">
+            <div class="ui segment">
+                <div class="ui small header">
+                    Rate this movie:
+                </div>
+                <div class="ui huge rating" data-max-rating="10" id="commentWindow"></div>
+                <div class="ui divider"></div>
+                <a class="ui link" href="/movie/{{ movie.id }}/reviews/">
+                    <div class="ui labeled icon button">
+                        <i class="comments icon"></i>
+                        Read Other Users' Reviews
+                    </div>
+                </a>
+            </div>
+            <div class="ui segment">
+                <div class="ui vertical segment">
+                    <div class="ui small header">
+                        Description:
+                    </div>
+                </div>
+                <div class="ui vertical segment">
+                    {{ movie.description }}
+                </div>
+            </div>
+
+            <div class="ui segment">
+                <div class="ui vertical segment">
+                    <div class="ui small header">
+                        Cast:
+                    </div>
+                </div>
+                <div class="ui vertical segment">
+                    <div class="ui bulleted list">
+                        <div class="item">{{ movie.actor1.name }}</div>
+                        <div class="item">{{ movie.actor2.name }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui segment">
+                <div class="ui vertical segment">
+                    <div class="ui small header">
+                        Crew:
+                    </div>
+
+                </div>
+                <div class="ui vertical segment">
+                    <div class="ui bulleted list">
+                        <div class="item">{{ movie.director }} – director</div>
+                        <div class="item">{{ movie.writer }} – writer</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- main column end -->
+
+    <!-- Modal -->
+    <div class="ui modal" id="reviewModal">
+        <div class="header">If You'd Like, Share Your Opinion!</div>
+        <div class="content">
+            <div class="description" style="width:20%;">
+                <div class="ui medium header"><a class="ui link" href="/movie/{{ movie.id }}">{{ movie.name }}</a></div>
+                <div class="ui small header" style="margin-top: 8px !important;">Your Rate: <span class="text" id="rating"></span>/10</div>
+                <div class="extra">
+                    <div class="ui small image">
+                        <img src="{{ movie.poster.url }}">
+                    </div>
+                </div>
+            </div>
+            <form class="ui form" method="post" action="/movie/{{ movie.id }}/submit_review/" id="review_form">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="textarea">Please Write Your Opinion</label>
+                    <textarea name="review" id="textarea"></textarea>
+                </div>
+                <input name="rating" type="hidden" id="rating_hidden_input" value="">
+            </form>
+        </div>
+        <div class="actions">
+            <div class="ui deny red button">Cancel</div>
+            <div class="ui approve green submit button">Submit</div>
+        </div>
+    </div>
+    <!-- Modal end-->
+{% endblock %}
+
+{% block scripts %}
+    $('.ui .rating').rating('enable');
+    $('.ui .rating').rating('setting', 'clearable', true);
+{% endblock %}

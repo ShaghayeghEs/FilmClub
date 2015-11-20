@@ -1,0 +1,134 @@
+{% extends "formLayout.html" %}
+{% load staticfiles %}
+
+{% block body %}
+    <!-- grid start -->
+    <div class="stackable ui page grid">
+        <div class="row"></div>
+        <div class="row">
+
+            <div class="seven wide column vertically padded">
+                <!-- sign up form -->
+                <div class="ui small right aligned">
+                    <form class="ui form segment" action="" method="post" id="registerForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="ui error message"></div>
+                        <div class="two fields">
+                            {{ form1.first_name.errors }}
+                            <div class="field">
+                                {{ form1.first_name.errors }}
+                                <label>First Name</label>
+                                <div class="ui left icon input">
+                                    {{ form1.first_name }}
+                                    <i class="write icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                {{ form1.last_name.errors }}
+                                <label>Last Name</label>
+                                <div class="ui left icon input">
+                                    {{ form1.last_name }}
+                                    <i class="write icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label for="birthday">Birthday</label>
+                                <div class="ui left icon input">
+                                    <input placeholder="DD/MM/YYYY" id="birthday" type="date" name="birthday">
+                                    <i class="birthday icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="ui dropdown" name="gender">
+                                    <option value="">Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field">
+                            {{ form2.display_name.errors }}
+                            <label>Display Name</label>
+                            <div class="ui left icon input">
+                                {{ form2.display_name }}
+                                <i class="user icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            {{ form1.username.errors }}
+                            <label>Username</label>
+                            <div class="ui left icon input">
+                                {{ form1.username }}
+                                <i class="user icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="two fields">
+                            {{ form1.password.errors }}
+                            <div class="field">
+                                <label>Password</label>
+                                <div class="ui left icon input">
+                                    {{ form1.password }}
+                                    <i class="lock icon"></i>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Repeat Password</label>
+                                <div class="ui left icon input">
+                                    <input placeholder="Repeat Password" type="password" name="password2" />
+                                    <i class="lock icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            {{ form1.email.errors }}
+                            <label>Email</label>
+                            <div class="ui left icon input">
+                                {{ form1.email }}
+                                <i class="mail icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            {{ form2.avatar.errors }}
+                            <label>Avatar</label>
+                            <div class="ui left icon input">
+                                {{ form2.avatar }}
+                                <i class="file image icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            {{ form2.captcha.errors }}
+                            <label>Captcha</label>
+                            <div class="ui input">
+                                {{ form2.captcha }}
+                            </div>
+                        </div>
+                        <div class="green ui labeled icon submit button">
+                            <i class="signup icon"></i>
+                            Sign Up
+                        </div>
+                    </form>
+                </div>
+                <!-- sign up form end -->
+
+                <div class="ui horizontal divider">Or</div>
+                <div class="center aligned column">
+                    <span class="text">
+                        Already registered?
+                        <a class="ui link" href="/">Login</a>
+                    </span>
+                </div>
+            </div> <!-- six wide column sign in form -->
+            <div class="one wide column"></div>
+            <div class="seven wide column">
+                <img class="ui centered image" src="{% static "img/layout/film_club.png" %}" />
+            </div>
+        </div>
+    </div>
+    <!-- grid end -->
+{% endblock %}
